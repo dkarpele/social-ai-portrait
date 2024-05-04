@@ -5,7 +5,7 @@ import os
 
 token = os.environ['TOKEN']
 url = os.environ['URL']
-port = int(os.environ.get('PORT', 5000))
+port = int(os.environ.get('PORT', 8443))
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -21,6 +21,5 @@ if __name__ == '__main__':
 
     application.run_webhook(listen='0.0.0.0',
                             port=port,
-                            secret_token=token,
-                            webhook_url=url + token)
+                            webhook_url=url)
 
