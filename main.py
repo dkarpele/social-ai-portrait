@@ -5,7 +5,7 @@ import os
 
 token = os.environ['TOKEN']
 url = os.environ['URL']
-port = int(os.environ.get('PORT'), 5000)
+port = int(os.environ.get('PORT', 5000))
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
