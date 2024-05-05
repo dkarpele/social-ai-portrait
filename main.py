@@ -19,7 +19,7 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     application.add_handler(start_handler)
 
-    application.run_webhook(listen='0.0.0.0',
-                            port=port,
-                            webhook_url=url)
-
+    # application.run_webhook(listen='0.0.0.0',
+    #                         port=port,
+    #                         webhook_url=url)
+    application.run_polling()
