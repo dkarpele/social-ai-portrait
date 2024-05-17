@@ -1,0 +1,64 @@
+version: "3"
+
+services:
+  fastapi-auth-api:
+    build:
+      context: ./
+      dockerfile: auth.Dockerfile
+    env_file:
+      - .env
+    networks:
+      - social-ai-portrait
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    depends_on:
+      - redis
+
+  bot:
+    build:
+      context: ./
+      dockerfile: bot.Dockerfile
+    env_file:
+      - .env
+    networks:
+      - social-ai-portrait
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    privileged: true
+    networks:
+      - social-ai-portrait
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 50
+    ports:
+      - "6379:6379"
+
+
+#  nginx:
+#    image: nginx:latest
+#    restart: on-failure
+#    privileged: true
+#    volumes:
+#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+#      - ./nginx/conf.d/site.conf:/etc/nginx/conf.d/site.conf:ro
+#    depends_on:
+#      # - django
+#      # - jaeger
+#      - fastapi-auth-api
+#      - fastapi-content-api
+#    ports:
+#      - "80:80"
+#    networks:
+#      - social-ai-portrait
+
+
+networks:
+  social-ai-portrait:
