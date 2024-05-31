@@ -31,7 +31,7 @@ class AbstractCache(ABC):
         ...
 
     @abstractmethod
-    async def put_to_cache_by_id(self, _id, entity, expire):
+    async def put_to_cache_by_id(self, _id, entity, expire = None):
         """
         Абстрактный асинхронный метод, который кладет данные в кэш по id
         :param _id:

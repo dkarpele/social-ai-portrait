@@ -3,13 +3,10 @@ import os
 from aiogoogle.auth.creds import ClientCreds
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class MainConf(BaseSettings):
-    model_config = SettingsConfigDict(env_file='.env',
+    model_config = SettingsConfigDict(env_file=os.getenv('ENV_FILENAME'),
                                       env_file_encoding='utf-8',
                                       extra='allow')
 
@@ -28,13 +25,15 @@ class GoogleCreds(MainConf):
     secret: str = Field(..., alias='GOOGLE_CLIENT_SECRET')
     scopes: str = Field(..., alias='GOOGLE_SCOPES')
     redirect_uri: str = Field(..., alias='GOOGLE_REDIRECT_URI')
+    project_id: str = Field(..., alias='GOOGLE_PROJECT_ID')
+    gemini_api_key: str = Field(..., alias='GEMINI_API_KEY')
 
 
 google_creds = GoogleCreds()
-google_client_creds = ClientCreds(client_id=google_creds.id,
-                                  client_secret=google_creds.secret,
-                                  scopes=[google_creds.scopes],
-                                  redirect_uri=google_creds.redirect_uri)
+client_creds = ClientCreds(client_id=google_creds.id,
+                           client_secret=google_creds.secret,
+                           scopes=[google_creds.scopes],
+                           redirect_uri=google_creds.redirect_uri)
 
 
 class RateLimit(MainConf):

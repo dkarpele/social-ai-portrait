@@ -19,7 +19,7 @@ class Redis(AbstractCache):
 
         return data
 
-    async def put_to_cache_by_id(self, _id, entity, expire):
+    async def put_to_cache_by_id(self, _id, entity, expire=None):
         await self.session.set(_id,
                                entity,
                                expire)
@@ -58,5 +58,5 @@ redis: Redis | None = None
 
 
 # Функция понадобится при внедрении зависимостей
-async def get_redis() -> Redis:
+async def get_cache() -> Redis:
     return redis
