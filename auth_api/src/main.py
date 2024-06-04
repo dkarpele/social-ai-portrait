@@ -5,15 +5,20 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
-from api.v1 import oauth
-from core.config import auth_settings
-from core.logger import LOGGING
-# from settings import LOGGING
+from auth_api.src.api.v1 import oauth
+from auth_api.src.core.config import auth_settings
+from settings.logger import LOGGING
 from db import db_redis
+
 from settings.config import redis_settings
 
 
+logger = logging.getLogger('auth_api')
+
+
 async def startup():
+    logger.debug('startup debug')
+    logger.info('startup info')
     db_redis.redis = db_redis.Redis(host=redis_settings.redis_host,
                                     port=redis_settings.redis_port,
                                     ssl=False)

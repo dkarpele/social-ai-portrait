@@ -1,14 +1,12 @@
 import logging
-
+from logging import config
 from telegram.ext import ApplicationBuilder, CommandHandler
 
 from handlers import start, auth, logout, describeme
 from settings.config import bot_settings
+from settings.logger import LOGGING
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+config.dictConfig(LOGGING)
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(bot_settings.token).build()

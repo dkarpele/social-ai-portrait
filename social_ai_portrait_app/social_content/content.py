@@ -6,6 +6,8 @@ from aiogoogle import Aiogoogle
 from settings.config import client_creds
 from social_ai_portrait_app.social_content.abstract import AbstractContent
 
+logger = logging.getLogger(__name__)
+
 
 class YouTubeContent(AbstractContent):
     @staticmethod
@@ -47,7 +49,7 @@ class YouTubeContent(AbstractContent):
                     tags = item['snippet']['tags']
                     yield from tags[:5]
                 except KeyError:
-                    logging.info(f'Video {item["title"]} has no tags.')
+                    logger.info(f'Video {item["title"]} has no tags.')
 
         tags_liked_videos: list = list(create_tags_list(liked_videos))
         tags_disliked_videos: list = list(create_tags_list(disliked_videos))

@@ -50,3 +50,15 @@ class BotSettings(MainConf):
 
 
 bot_settings = BotSettings()
+
+
+class SMTPLoggingSettings(MainConf):
+    username: str = Field(..., alias='SMTP_USERNAME')
+    password: str = Field(..., alias='SMTP_PASSWORD')
+    mail_host: str = Field(..., alias='SMTP_MAIL_HOST')
+    mail_port: str = Field(2525, alias='SMTP_PORT')
+    sender: str = Field(..., alias='SMTP_SENDER')
+    recipient: str = Field(..., alias='SMTP_RECIPIENT')
+
+
+smtp_settings = SMTPLoggingSettings()

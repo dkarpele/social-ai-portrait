@@ -13,6 +13,8 @@ from settings.exceptions import signature_doesnt_match_exception, \
 from helpers.encryption import verify_message, get_public_key, get_signature
 from settings.config import client_creds
 
+logger = logging.getLogger(__name__)
+
 
 async def create_signature(cache: AbstractCache, chat_id: int):
     signature_content: bytes = \
@@ -51,9 +53,11 @@ class GoogleAuth(AbstractAuth):
                 chat_id.encode() + ".".encode() + random_text.encode(),
                 signature,
                 get_public_key()):
-            logging.debug(f'Signature for {chat_id} was verified')
+            logger.info(f'Signature for telegram chat-id={chat_id} was '
+                         f'verified')
             await cache.delete_from_cache_by_id(f'signature.{chat_id}')
-            logging.debug(f'Signature for {chat_id} was deleted.')
+            logger.info(f'Signature for telegram chat-id={chat_id} was '
+                         f'deleted.')
             oauth2manager = Oauth2Manager()
             user_creds: UserCreds = UserCreds(
                 **await oauth2manager.build_user_creds(
@@ -91,13 +95,13 @@ class GoogleAuth(AbstractAuth):
                                                    json.dumps(user_creds))
                 # if refresh token has expired create new user creds.
                 except (AuthError, HTTPError) as ae:
-                    logging.warning(f'Refresh token for user {chat_id} has '
-                                    'expired. Push user to create new '
-                                    'credentials.')
+                    logger.warning(f'Refresh token for user {chat_id} has '
+                                   'expired. Push user to create new '
+                                   'credentials.')
                     raise BadUserCredsException
             else:
-                logging.warning(f'User {chat_id} tried to do actions without '
-                                f'auth. Push user to create new credentials.')
+                logger.warning(f'User {chat_id} tried to do actions without '
+                               f'auth. Push user to create new credentials.')
                 raise BadUserCredsException
 
         return user_creds

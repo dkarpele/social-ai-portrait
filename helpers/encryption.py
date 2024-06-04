@@ -3,6 +3,8 @@ import os
 import rsa
 from rsa.pkcs1 import VerificationError
 
+logger = logging.getLogger(__name__)
+
 
 def get_signature(message: bytes, hash_method: str = 'MD5') -> bytes:
     with open(os.getenv('PRIVATE_KEY_FILEPATH'), 'rb') as private_file:
@@ -21,10 +23,10 @@ def get_public_key():
 
 def verify_message(message: bytes, signature: bytes, public_key):
     if not signature:
-        logging.warning('Signature is empty. User probably does something '
-                        'dangerous.')
+        logger.warning('Signature is empty. User probably does something '
+                       'dangerous.')
         return False
     try:
         return rsa.verify(message, signature, public_key)
     except VerificationError:
-        logging.warning("Verification failed")
+        logger.warning("Verification failed")
