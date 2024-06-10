@@ -1,3 +1,5 @@
+import logging
+
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -5,12 +7,16 @@ from auth_app.auth import auth_connector
 from dependencies.redis import get_cache_service
 from messages import bot_login_message
 from settings.exceptions import BadUserCredsException
+from settings.logger import log_chat_id
 from social_ai_portrait_app.main import describe_user
 
 cache = get_cache_service()
+logger = logging.getLogger(__name__)
 
 
+@log_chat_id(logger)
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.debug('Start handler')
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="""
@@ -22,7 +28,9 @@ liked and disliked videos.
     )
 
 
+@log_chat_id(logger)
 async def auth(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.debug('auth handler')
     if await cache.get_from_cache_by_id(f'creds.{update.effective_chat.id}'):
         await context.bot.send_message(chat_id=update.effective_chat.id,
                                        text='You are already logged in! '
@@ -36,7 +44,9 @@ authentication you will be redirected back to telegram.
         await bot_login_message(cache, context, update, text)
 
 
+@log_chat_id(logger)
 async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.debug('Logout handler')
     await cache.delete_from_cache_by_id(
         f'creds.{update.effective_chat.id}')
     await context.bot.send_message(
@@ -45,7 +55,9 @@ async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+@log_chat_id(logger)
 async def describeme(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.debug('describeme handler')
     try:
         user_creds = await auth_connector.refresh_user_creds(
             cache,

@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 class YouTubeContent(AbstractContent):
     @staticmethod
     async def get_videos_tags(user_creds) -> tuple[list, list]:
+        logger.debug('Getting tags for the resent 5 liked and disliked videos')
         async with Aiogoogle(user_creds=user_creds,
                              client_creds=client_creds) as aiogoogle:
             youtube_v3 = await aiogoogle.discover('youtube', 'v3')

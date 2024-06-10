@@ -2,16 +2,15 @@ import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
+from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 
 from auth_api.src.api.v1 import oauth
 from auth_api.src.core.config import auth_settings
-from settings.logger import LOGGING
 from db import db_redis
-
 from settings.config import redis_settings
-
+from settings.logger import LOGGING
 
 logger = logging.getLogger('auth_api')
 
@@ -45,6 +44,18 @@ app = FastAPI(
     lifespan=lifespan,
     # dependencies=[Depends(rate_limit)]
 )
+app.add_middleware(CorrelationIdMiddleware)
+
+#
+# @app.middleware('http')
+# async def before_request(request: Request, call_next):
+#     response = await call_next(request)
+#     request_id = request.headers.get('X-Request-Id')
+#     if not request_id:
+#         return ORJSONResponse(status_code=status.HTTP_400_BAD_REQUEST,
+#                               content={'detail': 'X-Request-Id is required'})
+#     return response
+
 
 app.include_router(oauth.router, prefix='/api/v1/oauth', tags=['oauth'])
 

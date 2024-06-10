@@ -10,7 +10,7 @@ async def bot_login_message(cache, context, update, text: str):
             "inline_keyboard": [
                 [
                     {
-                        "text": "Connect my account 🎬",
+                        "text": "Connect to YouTube account 🎬",
                         "url": await auth_connector.get_authorization_url(
                             cache,
                             update.effective_chat.id)

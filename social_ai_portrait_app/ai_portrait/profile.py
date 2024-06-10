@@ -1,9 +1,12 @@
+import logging
+
 import google.generativeai as genai
 
 from settings.config import google_creds
 from social_ai_portrait_app.ai_portrait.abstract import AbstractPortrait
 
 gemini_api_key = google_creds.gemini_api_key
+logger = logging.getLogger(__name__)
 
 
 class Gemini(AbstractPortrait):
@@ -18,7 +21,8 @@ class Gemini(AbstractPortrait):
                 temperature=1.0)
         )
 
-    async def get_text_portrait(self, input_: tuple | str) -> str:
+    async def get_text_profile(self, input_: tuple | str) -> str:
+        logger.debug('Getting user TEXT social AI profile with Gemini model.')
         input_text = (f'Describe me in 10 sentences maximum! '
                       f'Please be creative! Do not forget to add a '
                       f'welcoming phrase! There is some information about me: '

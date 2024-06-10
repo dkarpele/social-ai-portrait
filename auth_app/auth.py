@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 async def create_signature(cache: AbstractCache, chat_id: int):
+    logger.info('Creating authorization signature.')
     signature_content: bytes = \
         str(chat_id).encode('utf-8') + \
         ".".encode('utf-8') + \
@@ -30,6 +31,7 @@ async def create_signature(cache: AbstractCache, chat_id: int):
 class GoogleAuth(AbstractAuth):
     @staticmethod
     async def get_authorization_url(cache: AbstractCache, chat_id: int):
+        logger.info('Creating authorization url')
         signature_content = await create_signature(cache, chat_id)
 
         if Oauth2Manager().is_ready(client_creds):
@@ -41,11 +43,14 @@ class GoogleAuth(AbstractAuth):
                 prompt="select_account",
             )
         else:
-            return Response(text="Client doesn't have enough info for Oauth2",
+            error_message = "Client doesn't have enough info for Oauth2"
+            logger.warning(error_message)
+            return Response(text=error_message,
                             status=500)
 
     @staticmethod
     async def init_auth(cache: AbstractCache, code, state):
+        logger.info('User does initial authorization.')
         chat_id = state.split('.')[0]
         random_text = state.split('.')[1]
         signature = await cache.get_from_cache_by_id(f'signature.{chat_id}')
@@ -54,11 +59,12 @@ class GoogleAuth(AbstractAuth):
                 signature,
                 get_public_key()):
             logger.info(f'Signature for telegram chat-id={chat_id} was '
-                         f'verified')
+                        f'verified')
             await cache.delete_from_cache_by_id(f'signature.{chat_id}')
             logger.info(f'Signature for telegram chat-id={chat_id} was '
-                         f'deleted.')
+                        f'deleted.')
             oauth2manager = Oauth2Manager()
+            logger.info('Creating user credentials.')
             user_creds: UserCreds = UserCreds(
                 **await oauth2manager.build_user_creds(
                     grant=code,
@@ -71,22 +77,30 @@ class GoogleAuth(AbstractAuth):
             await cache.put_to_cache_by_id(f'creds.{chat_id}',
                                            json.dumps(user_creds))
         else:
+            logger.warning("User tries to authenticate the second time "
+                           "or use an old link or they are already "
+                           "authenticated. Push user to generate a new link "
+                           "using /auth command and try again.")
             raise signature_doesnt_match_exception
 
     @staticmethod
     async def refresh_user_creds(cache: AbstractCache,
                                  chat_id) -> UserCreds | BadUserCredsException:
+        logger.info('Refreshing user creds')
         user_creds: UserCreds | None = None
         oauth2manager = Oauth2Manager()
         creds_chat_id = await cache.get_from_cache_by_id(f'creds.{chat_id}')
 
         # If the access token available, return creds.
         if creds_chat_id:
+            logger.info('Access token is available, getting user creds.')
             user_creds = UserCreds(**json.loads(creds_chat_id))
 
         if not user_creds or oauth2manager.is_expired(user_creds):
             if user_creds and user_creds.refresh_token:
                 try:
+                    logger.info('User creds are valid and refresh token is '
+                                'available. Refreshing creds.')
                     _, user_creds = await oauth2manager.refresh(
                         user_creds=user_creds,
                         client_creds=client_creds)
@@ -94,7 +108,7 @@ class GoogleAuth(AbstractAuth):
                     await cache.put_to_cache_by_id(f'creds.{chat_id}',
                                                    json.dumps(user_creds))
                 # if refresh token has expired create new user creds.
-                except (AuthError, HTTPError) as ae:
+                except (AuthError, HTTPError):
                     logger.warning(f'Refresh token for user {chat_id} has '
                                    'expired. Push user to create new '
                                    'credentials.')
