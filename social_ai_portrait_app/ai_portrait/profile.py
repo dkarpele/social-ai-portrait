@@ -32,4 +32,4 @@ class Gemini(AbstractPortrait):
         return response.text
 
 
-portrait = Gemini()
+profile = Gemini()
