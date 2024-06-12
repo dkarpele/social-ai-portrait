@@ -1,0 +1,55 @@
+/* Basic styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+  color: #333;
+}
+
+/* Container for content */
+.container {
+  max-width: 800px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+/* Headings */
+h1, h2, h3 {
+  margin: 1em 0;
+  font-weight: bold;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 1.5em;
+}
+
+/* Paragraphs */
+p {
+  line-height: 1.5;
+}
+
+/* Links */
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Navigation (optional) */
+.navigation {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.navigation a {
+  display: inline-block;
+  margin: 0 10px;
+}
