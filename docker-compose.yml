@@ -42,8 +42,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-    ports:
-      - "6379:6379"
 
   nginx:
     image: nginx:latest
@@ -62,6 +60,7 @@ services:
         condition: service_healthy
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - social-ai-portrait
 
