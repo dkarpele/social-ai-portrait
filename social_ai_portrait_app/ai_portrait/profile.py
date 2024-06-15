@@ -13,7 +13,7 @@ class Gemini(AbstractPortrait):
     def __init__(self):
         genai.configure(api_key=gemini_api_key)
         self.model = genai.GenerativeModel(
-            model_name="gemini-1.0-pro-latest",
+            model_name="gemini-1.5-flash",
             generation_config=genai.types.GenerationConfig(
                 # Only one candidate for now.
                 candidate_count=1,

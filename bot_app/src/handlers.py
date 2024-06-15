@@ -20,8 +20,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="""
-1. You need to login to your Youtube account with /auth command
-2. Use /describeme command to create your portrait based on your Youtube \
+1. You need to login to your Youtube account with /auth command.
+2. Use /describeme command to create your profile based on your Youtube \
 liked and disliked videos.
 """,
         parse_mode="markdown",
