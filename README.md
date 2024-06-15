@@ -8,7 +8,8 @@
    1. `openssl genrsa -traditional -out ./keys/private_key.pem 2048`
    2. `openssl rsa -in ./keys/private_key.pem -RSAPublicKey_out -out ./keys/public_key.pem`
 4. Start website (nginx) on port 80 (HTTP)
-   1. `sudo docker compose up --build`
+   1. In `./nginx/nginx.conf` change last line from `include conf.d/prod.conf;` to `include conf.d/test.conf;` 
+   2. `sudo docker compose up --build`
 5. Retrieve SSL certificates from let's encrypt using certbot
    1. `sudo docker compose -f docker-compose-certbot.yml run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ -d socialaiprofile.top`
 6. Change nginx config to use configuration for port 443 (HTTPS)
