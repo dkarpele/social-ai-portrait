@@ -15,3 +15,5 @@
    1. In `./nginx/nginx.conf` change last line from `include conf.d/test.conf;` to `include conf.d/prod.conf;` 
    2. Restart nginx or docker container with nginx `docker restart nginx`
    3. Check website opens using HTTPS and HTTP redirects to HTTPS
+7. Renew SSL certificate 
+`sudo docker compose -f docker-compose-certbot.yml run --rm certbot --force-renew`
