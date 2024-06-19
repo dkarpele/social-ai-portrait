@@ -3,7 +3,7 @@ import logging
 import google.generativeai as genai
 
 from settings.config import google_creds
-from social_ai_portrait_app.ai_portrait.abstract import AbstractPortrait
+from social_ai_profile_app.ai_portrait.abstract import AbstractPortrait
 
 gemini_api_key = google_creds.gemini_api_key
 logger = logging.getLogger(__name__)

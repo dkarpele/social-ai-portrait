@@ -3,6 +3,7 @@ from typing import Optional
 
 from redis.asyncio import Redis as AsyncRedis
 from db.abstract import AbstractCache
+from settings.config import redis_settings
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +49,8 @@ class Redis(AbstractCache):
         logger.info(f'Putting entity by key: `{key}` to cache')
         await self.session.hset(name=key,
                                 mapping=entities)
-        # await self.session.expire(name=key,
-        #                           time=settings.cache_expire_in_seconds)
+        await self.session.expire(name=key,
+                                  time=redis_settings.cache_expire_in_seconds)
 
     async def get_pipeline(self):
         return self.session.pipeline()

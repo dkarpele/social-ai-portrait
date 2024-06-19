@@ -18,13 +18,13 @@ RUN pip install --upgrade pip \
     && pip install -r /app/requirements.txt \
     && mkdir -p ${WORKDIR}/logs
 
-COPY ./bot_app/src ./bot_app
+COPY ./bot_app/src ./bot_app/src
 COPY ./auth_app ./auth_app
 COPY ./db ./db
 COPY ./settings ./settings
 COPY ./helpers ./helpers
 COPY ./keys ./keys
-COPY ./social_ai_portrait_app ./social_ai_portrait_app
+COPY social_ai_profile_app ./social_ai_profile_app
 
 
-CMD ["/bin/sh", "-c", "python3 bot_app/main.py"]
+CMD ["/bin/sh", "-c", "python3 bot_app/src/main.py"]

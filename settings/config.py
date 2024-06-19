@@ -47,6 +47,7 @@ rl = RateLimit()
 
 class BotSettings(MainConf):
     token: str = Field(..., alias='BOT_TOKEN')
+    url: str = Field(..., alias='BOT_URL')
 
 
 bot_settings = BotSettings()

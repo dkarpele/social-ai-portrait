@@ -7,16 +7,19 @@ from aiogoogle.auth.utils import create_secret
 from aiohttp.web_response import Response
 
 from auth_app.abstract import AbstractAuth
+from auth_app.dependencies.redis import get_cache_service
 from db.abstract import AbstractCache
-from settings.exceptions import signature_doesnt_match_exception, \
-    BadUserCredsException
+from helpers.exceptions import (BadUserCredsException,
+                                UserAlreadyLoggedInException)
 from helpers.encryption import verify_message, get_public_key, get_signature
+from helpers.utils import generate_youtube_login_message, redirect
 from settings.config import client_creds
 
 logger = logging.getLogger(__name__)
+cache: AbstractCache = get_cache_service()
 
 
-async def create_signature(cache: AbstractCache, chat_id: int):
+async def create_signature(chat_id: int):
     logger.info('Creating authorization signature.')
     signature_content: bytes = \
         str(chat_id).encode('utf-8') + \
@@ -30,9 +33,9 @@ async def create_signature(cache: AbstractCache, chat_id: int):
 
 class GoogleAuth(AbstractAuth):
     @staticmethod
-    async def get_authorization_url(cache: AbstractCache, chat_id: int):
+    async def get_authorization_url(chat_id: int) -> str | Response:
         logger.info('Creating authorization url')
-        signature_content = await create_signature(cache, chat_id)
+        signature_content = await create_signature(chat_id)
 
         if Oauth2Manager().is_ready(client_creds):
             return Oauth2Manager().authorization_url(
@@ -49,8 +52,7 @@ class GoogleAuth(AbstractAuth):
                             status=500)
 
     @staticmethod
-    async def init_auth(cache: AbstractCache, code, state):
-        logger.info('User does initial authorization.')
+    async def verify_signature(state, func):
         chat_id = state.split('.')[0]
         random_text = state.split('.')[1]
         signature = await cache.get_from_cache_by_id(f'signature.{chat_id}')
@@ -63,6 +65,23 @@ class GoogleAuth(AbstractAuth):
             await cache.delete_from_cache_by_id(f'signature.{chat_id}')
             logger.info(f'Signature for telegram chat-id={chat_id} was '
                         f'deleted.')
+            return await func(chat_id)
+        else:
+            logger.warning("User tries to authenticate the second time "
+                           "or use an old link or they are already "
+                           "authenticated. Push user to generate a new link "
+                           "and try again.")
+            error_message = """
+You are probably trying to authenticate the second time 
+or you are using an old link or you are already 
+authenticated.
+"""
+            return False, error_message
+
+    async def init_auth(self, code: str, state: str):
+        logger.info('User does initial authorization.')
+
+        async def inner(chat_id):
             oauth2manager = Oauth2Manager()
             logger.info('Creating user credentials.')
             user_creds: UserCreds = UserCreds(
@@ -73,19 +92,26 @@ class GoogleAuth(AbstractAuth):
                 ))
             # Redis key='creds.{chat_id}' stores the user's access and refresh
             # tokens and is created automatically when the authorization flow
-            # completes for the first time.
+            # completes for the first time. It expires after 24 hours.
             await cache.put_to_cache_by_id(f'creds.{chat_id}',
-                                           json.dumps(user_creds))
-        else:
-            logger.warning("User tries to authenticate the second time "
-                           "or use an old link or they are already "
-                           "authenticated. Push user to generate a new link "
-                           "using /auth command and try again.")
-            raise signature_doesnt_match_exception
+                                           json.dumps(user_creds),
+                                           86400)
+            return (True, )
+
+        return await self.verify_signature(state, inner)
+
+    async def error_auth(self, error: str, state: str):
+        logger.info(f'Authorization failed with error:{error}.')
+
+        async def inner(chat_id=None):
+            error_message = "You have probably canceled authentication."
+            return False, error_message
+
+        return await self.verify_signature(state, inner)
 
     @staticmethod
-    async def refresh_user_creds(cache: AbstractCache,
-                                 chat_id) -> UserCreds | BadUserCredsException:
+    async def refresh_user_creds(
+            chat_id: int | str) -> UserCreds | BadUserCredsException:
         logger.info('Refreshing user creds')
         user_creds: UserCreds | None = None
         oauth2manager = Oauth2Manager()
@@ -119,6 +145,29 @@ class GoogleAuth(AbstractAuth):
                 raise BadUserCredsException
 
         return user_creds
+
+    async def auth_user(self, chat_id: int, context):
+        if await cache.get_from_cache_by_id(f'creds.{chat_id}'):
+            raise UserAlreadyLoggedInException
+        else:
+            await generate_youtube_login_message(
+                context,
+                chat_id,
+                await self.get_authorization_url(chat_id)
+            )
+
+    @staticmethod
+    async def logout_user(chat_id: int | str) -> None:
+        logger.info('Logging out from user account.')
+        await cache.delete_from_cache_by_id(f'creds.{chat_id}')
+
+    async def revoke_user_creds(self, chat_id: int | str, context) -> None:
+        logger.info('Revoking user creds.')
+        oauth2manager = Oauth2Manager()
+        user_creds = await self.refresh_user_creds(chat_id)
+        await self.logout_user(chat_id)
+        await oauth2manager.revoke(user_creds=user_creds)
+        logger.info('User creds has been revoked.')
 
 
 auth_connector = GoogleAuth()

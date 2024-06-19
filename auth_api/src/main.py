@@ -16,8 +16,7 @@ logger = logging.getLogger('auth_api')
 
 
 async def startup():
-    logger.debug('startup debug')
-    logger.info('startup info')
+    logger.info('Fastapi startup')
     db_redis.redis = db_redis.Redis(host=redis_settings.redis_host,
                                     port=redis_settings.redis_port,
                                     ssl=False)

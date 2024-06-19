@@ -125,21 +125,10 @@ LOGGING_TEST = {
             'maxBytes': 1024 * 1024,
             'backupCount': 10,
         },
-        'critical_mail_handler': {
-            'level': 'CRITICAL',
-            'filters': ['correlation_id', 'chat_id'],
-            'formatter': 'verbose',
-            'class': 'logging.handlers.SMTPHandler',
-            'mailhost': (smtp_settings.mail_host, smtp_settings.mail_port),
-            'credentials': (smtp_settings.username, smtp_settings.password),
-            'fromaddr': smtp_settings.sender,
-            'toaddrs': [smtp_settings.recipient, ],
-            'subject': 'Critical error with application.'
-        }
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'file', 'critical_mail_handler'],
+            'handlers': ['console', 'file'],
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
@@ -174,7 +163,7 @@ LOGGING_TEST = {
             'propagate': False
         },
         'telegram': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': log_level_condition,
             'propagate': False
         },
@@ -219,8 +208,8 @@ LOGGING_PROD = {
             'maxBytes': 1024 * 1024,
             'backupCount': 10,
         },
-        'critical_mail_handler': {
-            'level': 'CRITICAL',
+        'error_mail_handler': {
+            'level': 'ERROR',
             'filters': ['correlation_id', 'chat_id'],
             'formatter': 'verbose',
             'class': 'logging.handlers.SMTPHandler',
@@ -228,12 +217,12 @@ LOGGING_PROD = {
             'credentials': (smtp_settings.username, smtp_settings.password),
             'fromaddr': smtp_settings.sender,
             'toaddrs': [smtp_settings.recipient, ],
-            'subject': 'Critical error with application.'
+            'subject': 'ERROR with application.'
         }
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'file', 'critical_mail_handler'],
+            'handlers': ['console', 'file', 'error_mail_handler'],
             'formatter': 'verbose',
             'level': 'DEBUG',
         },
@@ -268,7 +257,7 @@ LOGGING_PROD = {
             'propagate': False
         },
         'telegram': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': log_level_condition,
             'propagate': False
         },

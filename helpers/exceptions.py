@@ -5,6 +5,10 @@ class BadUserCredsException(BaseException):
     pass
 
 
+class UserAlreadyLoggedInException(BaseException):
+    pass
+
+
 signature_doesnt_match_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You are probably trying to authenticate the second time "
@@ -12,6 +16,14 @@ signature_doesnt_match_exception = HTTPException(
                    "authenticated. If you think your "
                    "session was accidentally deleted or expired, just "
                    "generate a new link using /auth command and try again.",
+            headers={"WWW-Authenticate": "Bearer"},
+)
+
+
+access_denied_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You have probably canceled authentication."
+                   "Generate a new link using /auth command and try again.",
             headers={"WWW-Authenticate": "Bearer"},
 )
 
