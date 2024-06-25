@@ -18,7 +18,7 @@ if __name__ == '__main__':
     logout_handler = CommandHandler('logout', logout)
     describeme_handler = CommandHandler('describeme', describeme)
     describeme_consent_handler = CallbackQueryHandler(describeme_consent)
-    revoke_handler = CommandHandler('revoke_handler',revoke)
+    revoke_handler = CommandHandler('revoke',revoke)
 
     application.add_handler(start_handler)
     application.add_handler(auth_handler)
