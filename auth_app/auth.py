@@ -9,10 +9,10 @@ from aiohttp.web_response import Response
 from auth_app.abstract import AbstractAuth
 from auth_app.dependencies.redis import get_cache_service
 from db.abstract import AbstractCache
+from helpers.encryption import verify_message, get_public_key, get_signature
 from helpers.exceptions import (BadUserCredsException,
                                 UserAlreadyLoggedInException)
-from helpers.encryption import verify_message, get_public_key, get_signature
-from helpers.utils import generate_youtube_login_message, redirect
+from helpers.utils import generate_youtube_login_message
 from settings.config import client_creds
 
 logger = logging.getLogger(__name__)
@@ -132,7 +132,8 @@ authenticated.
                         client_creds=client_creds)
                     # Save the credentials for the next run
                     await cache.put_to_cache_by_id(f'creds.{chat_id}',
-                                                   json.dumps(user_creds))
+                                                   json.dumps(user_creds),
+                                                   86400)
                 # if refresh token has expired create new user creds.
                 except (AuthError, HTTPError):
                     logger.warning(f'Refresh token for user {chat_id} has '
@@ -145,6 +146,11 @@ authenticated.
                 raise BadUserCredsException
 
         return user_creds
+
+    @staticmethod
+    async def get_user_creds(chat_id: int | str) -> str | None:
+        logger.info('Getting user creds')
+        return await cache.get_from_cache_by_id(f'creds.{chat_id}')
 
     async def auth_user(self, chat_id: int, context):
         if await cache.get_from_cache_by_id(f'creds.{chat_id}'):

@@ -1,13 +1,16 @@
+from fastapi.responses import RedirectResponse
 from telegram import Bot
-from fastapi.responses import RedirectResponse, Response
+
 from settings.config import bot_settings
 
 
 async def generate_youtube_login_message(context, chat_id, url: str, ):
     prompt = """
-    Login to Youtube by pressing the button below. After successful \
-    authentication you will be redirected back to telegram.
-    """
+Login to Youtube by pressing the button below. By clicking this button you \
+agree with [Privacy Policy](https://socialaiprofile.top/privacy/) \
+and [YouTube Terms of Service](https://www.youtube.com/t/terms). After \
+successful authentication you will be redirected back to telegram. 
+"""
     button_text: str = "Connect to YouTube account 🎬"
     await context.bot.send_message(
         chat_id=chat_id,

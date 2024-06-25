@@ -4,7 +4,8 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 from settings.logger import log_chat_id
-from bot_app.src.handlers.describe_handlers import describe_user_handler
+from bot_app.src.handlers.describe_handlers import (describe_user_handler,
+                                                    describeme_consent_handler)
 from bot_app.src.handlers.base_handlers import start_handler, handle_bad_user
 from bot_app.src.handlers.auth_handlers import (auth_user_handler,
                                                 logout_user_handler,
@@ -35,6 +36,14 @@ async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def describeme(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.debug('describeme handler')
     await describe_user_handler(update, context)
+
+
+@log_chat_id(logger)
+@handle_bad_user
+async def describeme_consent(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Parses the CallbackQuery and updates the message text."""
+    logger.debug('describeme_consent handler')
+    await describeme_consent_handler(update, context)
 
 
 @log_chat_id(logger)

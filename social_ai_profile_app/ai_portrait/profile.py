@@ -26,7 +26,7 @@ class Gemini(AbstractPortrait):
         input_text = (f'Describe me in 10 sentences maximum! '
                       f'Please be creative! Do not forget to add a '
                       f'welcoming phrase! There is some information about me: '
-                      f'I like YouTube videos about: {input_[0]}.'
+                      f'I like YouTube videos about: {input_[0]}. '
                       f'I do not like YouTube videos about: {input_[1]}')
         response = await self.model.generate_content_async(input_text)
         return response.text
