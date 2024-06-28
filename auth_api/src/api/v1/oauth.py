@@ -3,7 +3,8 @@ import logging
 from fastapi import APIRouter, status
 
 from auth_app.auth import auth_connector
-from helpers.utils import redirect
+from helpers.utils import redirect, handle_bad_user
+from services.exceptions import exc_func, general_error_message
 from settings.logger import log_chat_id
 
 router = APIRouter()
@@ -17,20 +18,21 @@ logger = logging.getLogger(__name__)
             include_in_schema=False
             )
 @log_chat_id(logger)
+@handle_bad_user(exc_func)
 async def callback(state: str,
                    code: int | str | None = None,
                    error: str | None = None,
                    ):
+    # code = '4/0ATx3LY4RZUt2I3oUNiqEojqrG485LGbTk-Q0QghfK0thsubNkWV8-awgIQjw4J_QCvGx5Q'
     logger.info('User redirected from authorization URL and will try to auth.')
     chat_id = state.split('.')[0]
-    general_error_message = """
-Generate a new link using /auth command and try again."""
+
     if error and not code:
         _, error_message = await auth_connector.error_auth(error, state)
         logger.warning(f'{error_message=}')
-        return await redirect.redirect_response(
-            [error_message, general_error_message],
-            chat_id)
+        return await redirect.redirect_response([error_message,
+                                                 general_error_message],
+                                                chat_id)
     elif code and not error:
         init_ = await auth_connector.init_auth(code, state)
         if not init_[0]:
@@ -45,4 +47,6 @@ Generate a new link using /auth command and try again."""
 
     else:
         logger.warning('Unknown error happened. Both error and code are None.')
-        return await redirect.redirect_response([general_error_message], chat_id)
+        return await redirect.redirect_response(['Unknown error happened.',
+                                                 general_error_message],
+                                                chat_id)

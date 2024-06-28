@@ -84,19 +84,24 @@ authenticated.
         async def inner(chat_id):
             oauth2manager = Oauth2Manager()
             logger.info('Creating user credentials.')
-            user_creds: UserCreds = UserCreds(
-                **await oauth2manager.build_user_creds(
-                    grant=code,
-                    client_creds=client_creds
+            try:
+                user_creds: UserCreds = UserCreds(
+                    **await oauth2manager.build_user_creds(
+                        grant=code,
+                        client_creds=client_creds
 
-                ))
+                    ))
+            except HTTPError:
+                logger.warning(f'Failed to build user creds',
+                               exc_info=True)
+                raise BadUserCredsException
             # Redis key='creds.{chat_id}' stores the user's access and refresh
             # tokens and is created automatically when the authorization flow
             # completes for the first time. It expires after 24 hours.
             await cache.put_to_cache_by_id(f'creds.{chat_id}',
                                            json.dumps(user_creds),
                                            86400)
-            return (True, )
+            return (True,)
 
         return await self.verify_signature(state, inner)
 

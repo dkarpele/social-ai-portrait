@@ -2,6 +2,7 @@ import logging
 
 from auth_app.auth import auth_connector
 from helpers.exceptions import UserAlreadyLoggedInException
+from helpers.utils import generate_youtube_login_message
 
 logger = logging.getLogger(__name__)
 
@@ -31,4 +32,15 @@ async def revoke_user_creds_handler(update, context) -> None:
         text="The bot's access to your YouTube account has been revoked. "
              "To recheck your permissions visit "
              "https://myaccount.google.com/permissions.",
+    )
+
+
+async def bot_exc_func(update, context):
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+                                   text='Your credentials are not '
+                                        'valid.')
+    await generate_youtube_login_message(
+        context,
+        update.effective_chat.id,
+        await auth_connector.get_authorization_url(update.effective_chat.id)
     )

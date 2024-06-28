@@ -1,7 +1,44 @@
+from functools import wraps
+
 from fastapi.responses import RedirectResponse
 from telegram import Bot
 
+from helpers.exceptions import BadUserCredsException
+
 from settings.config import bot_settings
+
+
+def handle_bad_user(exc_func):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                return await func(*args, **kwargs)
+            except BadUserCredsException:
+                return await exc_func(*args, **kwargs)
+
+        return wrapper
+    return decorator
+
+
+class RedirectToBot:
+    def __init__(self):
+        self.bot = Bot(bot_settings.token)
+        self.url = bot_settings.url
+
+    async def redirect_response(self, text_list: list, chat_id):
+        async with self.bot:
+            for text in text_list:
+                await self.bot.send_message(text=text,
+                                            chat_id=chat_id)
+        # return Response(status_code=307,
+        #                 content=content,
+        #                 headers={'location': self.url})
+        return RedirectResponse(url=self.url,
+                                )
+
+
+redirect = RedirectToBot()
 
 
 async def generate_youtube_login_message(context, chat_id, url: str, ):
@@ -27,23 +64,3 @@ successful authentication you will be redirected back to telegram.
             ]
         }
     )
-
-
-class RedirectToBot:
-    def __init__(self):
-        self.bot = Bot(bot_settings.token)
-        self.url = bot_settings.url
-
-    async def redirect_response(self, text_list: list, chat_id):
-        async with self.bot:
-            for text in text_list:
-                await self.bot.send_message(text=text,
-                                            chat_id=chat_id)
-        # return Response(status_code=307,
-        #                 content=content,
-        #                 headers={'location': self.url})
-        return RedirectResponse(url=self.url,
-                                )
-
-
-redirect = RedirectToBot()
