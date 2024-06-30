@@ -2,9 +2,9 @@ import logging
 
 from fastapi import APIRouter, status
 
+from auth_api.src.services.exceptions import exc_func, general_error_message
 from auth_app.auth import auth_connector
 from helpers.utils import redirect, handle_bad_user
-from services.exceptions import exc_func, general_error_message
 from settings.logger import log_chat_id
 
 router = APIRouter()
