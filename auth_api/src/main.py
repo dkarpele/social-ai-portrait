@@ -9,8 +9,8 @@ from fastapi.responses import ORJSONResponse
 from auth_api.src.api.v1 import oauth
 from auth_api.src.core.config import auth_settings
 from db import db_redis
-from settings.config import redis_settings
-from settings.logger import LOGGING
+from project_settings.config import redis_settings
+from project_settings.logger import LOGGING
 
 logger = logging.getLogger('auth_api')
 

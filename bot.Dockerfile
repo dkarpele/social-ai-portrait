@@ -21,7 +21,7 @@ RUN pip install --upgrade pip \
 COPY ./bot_app/src ./bot_app/src
 COPY ./auth_app ./auth_app
 COPY ./db ./db
-COPY ./settings ./settings
+COPY ./project_settings ./project_settings
 COPY ./helpers ./helpers
 COPY ./keys ./keys
 COPY social_ai_profile_app ./social_ai_profile_app

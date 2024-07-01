@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  fastapi-auth-api:
+    image: fastapi-auth-api
+    restart: unless-stopped
+    build:
+      context: ../../
+      dockerfile: auth.Dockerfile
+    env_file:
+      - .env
+    networks:
+      - test_apps
+    expose:
+      - "8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./../../test_apps:/${APP_HOME}/test_apps
+
+  tests:
+    image: fastapi-auth-api
+    privileged: true
+    env_file:
+      - .env
+    networks:
+      - test_apps
+    depends_on:
+      redis:
+        condition: service_healthy
+      fastapi-auth-api:
+        condition: service_started
+    entrypoint: ${APP_HOME}/test_apps/end_to_end/entrypoint.sh
+    volumes:
+      - ./../../test_apps:/${APP_HOME}/test_apps
+
+  redis:
+    image: redis:latest
+    restart: always
+    container_name: redis
+    privileged: true
+    networks:
+      - test_apps
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+
+networks:
+  test_apps:

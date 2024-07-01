@@ -3,7 +3,7 @@ import logging
 
 from aiogoogle import Aiogoogle
 
-from settings.config import client_creds
+from project_settings.config import client_creds
 from social_ai_profile_app.social_content.abstract import AbstractContent
 
 logger = logging.getLogger(__name__)

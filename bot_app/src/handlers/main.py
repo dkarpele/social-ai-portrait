@@ -3,7 +3,7 @@ import logging
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from settings.logger import log_chat_id
+from project_settings.logger import log_chat_id
 from bot_app.src.handlers.describe_handlers import (describe_user_handler,
                                                     describeme_consent_handler)
 from bot_app.src.handlers.base_handlers import start_handler

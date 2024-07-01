@@ -3,8 +3,8 @@ import logging.config
 from gunicorn import glogging
 from pydantic import Field
 
-from settings.config import MainConf
-from settings.logger import LOGGING
+from project_settings.config import MainConf
+from project_settings.logger import LOGGING
 
 
 class AuthSettings(MainConf):

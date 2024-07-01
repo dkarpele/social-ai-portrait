@@ -3,7 +3,7 @@ from typing import Optional
 
 from redis.asyncio import Redis as AsyncRedis
 from db.abstract import AbstractCache
-from settings.config import redis_settings
+from project_settings.config import redis_settings
 
 logger = logging.getLogger(__name__)
 

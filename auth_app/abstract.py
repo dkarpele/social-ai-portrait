@@ -8,7 +8,7 @@ from helpers.exceptions import BadUserCredsException
 class AbstractAuth(ABC):
     @staticmethod
     @abstractmethod
-    async def get_authorization_url(chat_id: int):
+    async def get_authorization_url(chat_id: str):
         pass
 
     @staticmethod

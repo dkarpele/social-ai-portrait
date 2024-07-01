@@ -15,13 +15,13 @@ ENV PYTHONPATH "${PYTHONPATH}:${WORKDIR}"
 COPY ./auth_api/src/requirements.txt requirements.txt
 
 RUN pip install --upgrade pip \
-    && pip install -r /app/requirements.txt \
+    && pip install -r ${WORKDIR}/requirements.txt \
     && mkdir -p ${WORKDIR}/logs
 
 COPY ./auth_api/src ./auth_api/src
 COPY ./auth_app ./auth_app
 COPY ./db ./db
-COPY ./settings ./settings
+COPY ./project_settings ./project_settings
 COPY ./helpers ./helpers
 COPY ./keys ./keys
 

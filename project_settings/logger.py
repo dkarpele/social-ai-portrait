@@ -4,7 +4,7 @@ from functools import wraps
 
 from telegram import Update
 
-from settings.config import smtp_settings
+from project_settings.config import smtp_settings
 from asgi_correlation_id import CorrelationIdFilter
 from logging import Filter
 

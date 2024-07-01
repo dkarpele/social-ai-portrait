@@ -13,13 +13,13 @@ from helpers.encryption import verify_message, get_public_key, get_signature
 from helpers.exceptions import (BadUserCredsException,
                                 UserAlreadyLoggedInException)
 from helpers.utils import generate_youtube_login_message
-from settings.config import client_creds
+from project_settings.config import client_creds
 
 logger = logging.getLogger(__name__)
 cache: AbstractCache = get_cache_service()
 
 
-async def create_signature(chat_id: int):
+async def create_signature(chat_id: str):
     logger.info('Creating authorization signature.')
     signature_content: bytes = \
         str(chat_id).encode('utf-8') + \
@@ -33,7 +33,7 @@ async def create_signature(chat_id: int):
 
 class GoogleAuth(AbstractAuth):
     @staticmethod
-    async def get_authorization_url(chat_id: int) -> str | Response:
+    async def get_authorization_url(chat_id: str) -> str | Response:
         logger.info('Creating authorization url')
         signature_content = await create_signature(chat_id)
 
@@ -82,19 +82,18 @@ authenticated.
         logger.info('User does initial authorization.')
 
         async def inner(chat_id):
-            oauth2manager = Oauth2Manager()
             logger.info('Creating user credentials.')
             try:
-                user_creds: UserCreds = UserCreds(
-                    **await oauth2manager.build_user_creds(
+                buc = await Oauth2Manager().build_user_creds(
                         grant=code,
                         client_creds=client_creds
-
-                    ))
+                    )
+                user_creds: UserCreds = UserCreds(**buc)
             except HTTPError:
                 logger.warning(f'Failed to build user creds',
                                exc_info=True)
                 raise BadUserCredsException
+
             # Redis key='creds.{chat_id}' stores the user's access and refresh
             # tokens and is created automatically when the authorization flow
             # completes for the first time. It expires after 24 hours.
@@ -153,11 +152,11 @@ authenticated.
         return user_creds
 
     @staticmethod
-    async def get_user_creds(chat_id: int | str) -> str | None:
+    async def get_user_creds(chat_id: str) -> str | None:
         logger.info('Getting user creds')
         return await cache.get_from_cache_by_id(f'creds.{chat_id}')
 
-    async def auth_user(self, chat_id: int, context):
+    async def auth_user(self, chat_id: str, context):
         if await cache.get_from_cache_by_id(f'creds.{chat_id}'):
             raise UserAlreadyLoggedInException
         else:

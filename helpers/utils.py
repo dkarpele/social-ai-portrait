@@ -5,7 +5,7 @@ from telegram import Bot
 
 from helpers.exceptions import BadUserCredsException
 
-from settings.config import bot_settings
+from project_settings.config import bot_settings
 
 
 def handle_bad_user(exc_func):
@@ -34,8 +34,7 @@ class RedirectToBot:
         # return Response(status_code=307,
         #                 content=content,
         #                 headers={'location': self.url})
-        return RedirectResponse(url=self.url,
-                                )
+        return RedirectResponse(url=self.url)
 
 
 redirect = RedirectToBot()

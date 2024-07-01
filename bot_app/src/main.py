@@ -5,8 +5,8 @@ from telegram.ext import ApplicationBuilder, CommandHandler, \
 from telegram import Update
 
 from bot_app.src.handlers.main import start, auth, logout, describeme, revoke, describeme_consent
-from settings.config import bot_settings
-from settings.logger import LOGGING
+from project_settings.config import bot_settings
+from project_settings.logger import LOGGING
 
 config.dictConfig(LOGGING)
 

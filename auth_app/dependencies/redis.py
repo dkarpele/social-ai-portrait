@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from db import db_redis
 from db.abstract import AbstractCache
-from settings.config import redis_settings
+from project_settings.config import redis_settings
 
 
 @lru_cache()
