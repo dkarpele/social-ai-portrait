@@ -31,6 +31,7 @@ jobs:
 #        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Set environment variables from secrets and create .env file
       run: |
+          mkdir -p ./keys
           echo "${{ secrets.ENV_FILE }}" > ./test_apps/end_to_end/.env
           echo "${{ secrets.PRIVATE_KEY }}" > ./keys/private_key.pem
           echo "${{ secrets.PUBLIC_KEY }}" > ./keys/public_key.pem
