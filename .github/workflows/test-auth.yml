@@ -41,3 +41,9 @@ jobs:
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
         compose-file: "./test_apps/end_to_end/docker-compose.yml"
+        services: |
+          redis
+          fastapi-auth-api
+    - name: Execute tests in the running services
+      run: |
+        docker-compose up --build tests

@@ -3,6 +3,7 @@ version: '3'
 services:
   fastapi-auth-api:
     image: fastapi-auth-api
+    privileged: true
     restart: unless-stopped
     build:
       context: ../../
