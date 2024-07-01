@@ -46,4 +46,5 @@ jobs:
           fastapi-auth-api
     - name: Execute tests in the running services
       run: |
+        cd ./test_apps/end_to_end/
         docker-compose up --build tests
