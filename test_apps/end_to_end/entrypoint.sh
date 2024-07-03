@@ -9,5 +9,4 @@ done
 
 echo "volume $APP_HOME/test_apps/ created"
 
-pip install -r "$APP_HOME"/test_apps/end_to_end/requirements.txt &&
 pytest -s -v --disable-warnings "$APP_HOME"/test_apps/end_to_end/src

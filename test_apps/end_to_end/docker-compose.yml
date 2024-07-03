@@ -1,27 +1,40 @@
 version: '3'
 
 services:
-  fastapi-auth-api:
-    image: fastapi-auth-api
-    privileged: true
-    restart: unless-stopped
-    build:
-      context: ../../
-      dockerfile: auth.Dockerfile
-    env_file:
-      - .env
-    networks:
-      - test_apps
-    expose:
-      - "8000"
-    depends_on:
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./../../test_apps:/${APP_HOME}/test_apps
+#  fastapi-auth-api:
+#    image: fastapi-auth-api
+#    privileged: true
+#    restart: unless-stopped
+#    build:
+#      context: ../../
+#      dockerfile: auth.Dockerfile
+#    env_file:
+#      - .env
+#    networks:
+#      - test_apps
+#    expose:
+#      - "8000"
+#    depends_on:
+#      redis:
+#        condition: service_healthy
+#    volumes:
+#      - ./../../test_apps:/${APP_HOME}/test_apps
+#      - ./../../auth_api/src:/${APP_HOME}/auth_api/src
+#      - ./../../auth_app:/${APP_HOME}/auth_app
+#      - ./../../db:/${APP_HOME}/db
+#      - ./../../project_settings:/${APP_HOME}/project_settings
+#      - ./../../helpers:/${APP_HOME}/helpers
+
+#COPY ./auth_api/src ./auth_api/src
+#COPY ./auth_app ./auth_app
+#COPY ./db ./db
+#COPY ./project_settings ./project_settings
+#COPY ./helpers ./helpers
 
   tests:
-    image: fastapi-auth-api
+    build:
+      context: ./
+      dockerfile: Dockerfile
     privileged: true
     env_file:
       - .env
@@ -30,10 +43,15 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      fastapi-auth-api:
-        condition: service_started
+#      fastapi-auth-api:
+#        condition: service_started
     entrypoint: ${APP_HOME}/test_apps/end_to_end/entrypoint.sh
     volumes:
+      - ./../../auth_api/src:/${APP_HOME}/auth_api/src
+      - ./../../auth_app:/${APP_HOME}/auth_app
+      - ./../../db:/${APP_HOME}/db
+      - ./../../project_settings:/${APP_HOME}/project_settings
+      - ./../../helpers:/${APP_HOME}/helpers
       - ./../../test_apps:/${APP_HOME}/test_apps
 
   redis:
@@ -45,7 +63,7 @@ services:
       - test_apps
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      interval: 30s
+      interval: 5s
       timeout: 10s
       retries: 5
 

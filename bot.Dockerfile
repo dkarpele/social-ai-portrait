@@ -15,7 +15,7 @@ ENV PYTHONPATH "${PYTHONPATH}:${WORKDIR}"
 COPY ./bot_app/src/requirements.txt requirements.txt
 
 RUN pip install --upgrade pip \
-    && pip install -r /app/requirements.txt \
+    && pip install -r ${WORKDIR}/requirements.txt \
     && mkdir -p ${WORKDIR}/logs
 
 COPY ./bot_app/src ./bot_app/src
