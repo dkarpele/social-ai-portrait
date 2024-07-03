@@ -13,13 +13,9 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH "${PYTHONPATH}:${WORKDIR}"
 
 COPY ./requirements.txt requirements.txt
-COPY ./entrypoint.sh entrypoint.sh
 COPY ./keys ./keys
 
 RUN pip install --upgrade pip \
-    && pip install -r ${WORKDIR}/requirements.txt \
-    && chmod +x ${WORKDIR}/entrypoint.sh
+    && pip install -r ${WORKDIR}/requirements.txt
 
-
-# CMD ["/bin/sh", "ls -la"]
-CMD ["/bin/sh", "-c", "pytest -s -v --disable-warnings ${WORKDIR}/test_apps/end_to_end/src"]
+# CMD ["/bin/sh", "-c", "pytest -s -v --disable-warnings ${WORKDIR}/test_apps/end_to_end/src"]
