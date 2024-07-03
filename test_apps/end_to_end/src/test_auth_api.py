@@ -39,4 +39,3 @@ class TestOAuth(unittest.IsolatedAsyncioTestCase):
 
         assert response.status_code == 307
         assert str(response.next_request.url) == settings.bot_url
-        assert 1 == 0

@@ -30,6 +30,6 @@ jobs:
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
         compose-file: "./test_apps/end_to_end/docker-compose.yml"
-    - name: Execute tests in the running services
+    - name: Execute tests
       run: |
         docker start -a end_to_end-test-app-1
