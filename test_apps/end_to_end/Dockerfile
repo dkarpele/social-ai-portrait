@@ -17,6 +17,8 @@ COPY ./entrypoint.sh entrypoint.sh
 COPY ./keys ./keys
 
 RUN pip install --upgrade pip \
-    && pip install -r ${WORKDIR}/requirements.txt
+    && pip install -r ${WORKDIR}/requirements.txt \
+    && chmod +x ${WORKDIR}/entrypoint.sh
 
-CMD ["/bin/sh", "-c", "pytest -s -v --disable-warnings ${WORKDIR}/test_apps/end_to_end/src"]
+CMD ["/bin/sh", "entrypoint.sh"]
+# CMD ["/bin/sh", "-c", "pytest -s -v --disable-warnings ${WORKDIR}/test_apps/end_to_end/src"]
