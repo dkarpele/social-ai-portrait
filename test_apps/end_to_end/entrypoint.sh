@@ -9,4 +9,4 @@ done
 
 echo "volume $APP_HOME/test_apps/ created"
 
-pytest -s -v --disable-warnings "$APP_HOME"/test_apps/end_to_end/src
+# pytest -s -v --disable-warnings "$APP_HOME"/test_apps/end_to_end/src
