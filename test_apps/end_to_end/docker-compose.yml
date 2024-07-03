@@ -13,7 +13,8 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-    #entrypoint: ${APP_HOME}/test_apps/end_to_end/entrypoint.sh
+    entrypoint: ${APP_HOME}/test_apps/end_to_end/entrypoint.sh
+    tty: true
     volumes:
       - ./../../auth_api/src:/${APP_HOME}/auth_api/src
       - ./../../auth_app:/${APP_HOME}/auth_app
