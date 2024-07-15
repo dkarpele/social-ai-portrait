@@ -1,0 +1,51 @@
+global:
+  scrape_interval:     15s
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'monitor'
+
+alerting:
+  alertmanagers:
+    - scheme: http
+    - basic_auth:
+        username: admin
+        password_file: 'pass'
+      static_configs:
+        - targets: [ 'alertmanager:9093' ]
+
+
+rule_files:
+  - 'alerts/*.yml'
+
+scrape_configs:
+  - job_name: cadvisor
+    scrape_interval: 5s
+    static_configs:
+    - targets:
+      - cadvisor:8080
+
+  - job_name: fastapi-auth-api
+    scrape_interval: 5s
+    metrics_path: /metrics-fastapi-auth-api
+    static_configs:
+    - targets:
+      - nginx:80
+
+  - job_name: 'redis_exporter'
+    static_configs:
+      - targets:
+        - redis_exporter:9121
+
+  - job_name: 'redis_exporter_targets'
+    static_configs:
+      - targets:
+        - redis://redis:6379
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: redis_exporter:9121

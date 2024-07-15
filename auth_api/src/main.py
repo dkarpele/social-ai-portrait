@@ -5,6 +5,7 @@ import uvicorn
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from auth_api.src.api.v1 import oauth
 from auth_api.src.core.config import auth_settings
@@ -37,13 +38,19 @@ app = FastAPI(
     title="Auth API implements OAuth2.",
     description="Auth API implements OAuth2.",
     version="1.0.0",
-    docs_url='/api/openapi-auth',
-    openapi_url='/api/openapi-auth.json',
+    # docs_url='/api/openapi-auth',
+    # openapi_url='/api/openapi-auth.json',
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
     # dependencies=[Depends(rate_limit)]
 )
 app.add_middleware(CorrelationIdMiddleware)
+instrumentator = Instrumentator(). \
+    instrument(app). \
+    expose(app,
+           endpoint='/metrics-fastapi-auth-api',
+           include_in_schema=False
+           )
 
 #
 # @app.middleware('http')

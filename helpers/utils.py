@@ -1,6 +1,7 @@
 from functools import wraps
 
 from fastapi.responses import RedirectResponse
+from redis.exceptions import ConnectionError
 from telegram import Bot
 
 from helpers.exceptions import BadUserCredsException
@@ -8,14 +9,18 @@ from helpers.exceptions import BadUserCredsException
 from project_settings.config import bot_settings
 
 
-def handle_bad_user(exc_func):
+def handle_exception(exc_func):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             try:
                 return await func(*args, **kwargs)
             except BadUserCredsException:
-                return await exc_func(*args, **kwargs)
+                return await exc_func('info', str(BadUserCredsException),
+                                      *args, **kwargs)
+            except ConnectionError:
+                return await exc_func('critical', str(ConnectionError), *args,
+                                      **kwargs)
 
         return wrapper
     return decorator

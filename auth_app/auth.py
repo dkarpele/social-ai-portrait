@@ -140,12 +140,12 @@ authenticated.
                                                    86400)
                 # if refresh token has expired create new user creds.
                 except (AuthError, HTTPError):
-                    logger.warning(f'Refresh token for user {chat_id} has '
+                    logger.info(f'Refresh token for user {chat_id} has '
                                    'expired. Push user to create new '
                                    'credentials.')
                     raise BadUserCredsException
             else:
-                logger.warning(f'User {chat_id} tried to do actions without '
+                logger.info(f'User {chat_id} tried to do actions without '
                                f'auth. Push user to create new credentials.')
                 raise BadUserCredsException
 

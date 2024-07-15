@@ -1,14 +1,19 @@
 import logging
 
 from fastapi import APIRouter, status
+from prometheus_client import Summary
 
 from auth_api.src.services.exceptions import exc_func, general_error_message
 from auth_app.auth import auth_connector
-from helpers.utils import redirect, handle_bad_user
+from helpers.utils import redirect, handle_exception
 from project_settings.logger import log_chat_id
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+REQUEST_TIME = Summary('request_processing_seconds',
+                       'Time spent processing request')
 
 
 @router.get('/callback/aiogoogle',
@@ -18,7 +23,8 @@ logger = logging.getLogger(__name__)
             include_in_schema=False
             )
 @log_chat_id(logger)
-@handle_bad_user(exc_func)
+@handle_exception(exc_func)
+# @REQUEST_TIME.time()
 async def callback(state: str,
                    code: int | str | None = None,
                    error: str | None = None,

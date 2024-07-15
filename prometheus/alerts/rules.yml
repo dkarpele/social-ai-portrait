@@ -1,0 +1,19 @@
+groups:
+  - name: Redis
+    rules:
+      - alert: RedisDown
+        expr: redis_up{} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: Redis down (instance {{ $labels.instance }})
+          description: "Redis instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: RedisNotEnoughConnections
+        expr: redis_connected_clients < 4
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: Redis not enough connections (instance {{ $labels.instance }})
+          description: "Redis instance should have more connections (> 4)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
