@@ -2,6 +2,7 @@ version: "3"
 
 services:
   fastapi-auth-api:
+    container_name: fastapi-auth-api
     restart: unless-stopped
     build:
       context: ./
@@ -10,14 +11,13 @@ services:
       - .env
     networks:
       - social-ai-portrait
-    expose:
-      - "8000"
     depends_on:
       redis:
         condition: service_healthy
 
 
   bot:
+    container_name: bot
     restart: unless-stopped
     build:
       context: ./
@@ -31,9 +31,9 @@ services:
         condition: service_healthy
 
   redis:
-    image: redis:latest
-    restart: always
     container_name: redis
+    image: redis:latest
+    # restart: always
     privileged: true
     networks:
       - social-ai-portrait
@@ -42,8 +42,13 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
+    expose:
+      - "6379"
+    ports:
+      - 6379:6379
 
   nginx:
+    container_name: nginx
     image: nginx:latest
     restart: always
     privileged: true
@@ -65,6 +70,94 @@ services:
     networks:
       - social-ai-portrait
 
+  prometheus:
+    container_name: prometheus
+    build:
+      context: ./prometheus
+    privileged: true
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.config.file=/etc/prometheus/web.yml
+    volumes:
+      - ./prometheus/:/etc/prometheus/:ro
+      - prometheus-data:/data
+    depends_on:
+      - cadvisor
+    networks:
+      - social-ai-portrait
+
+  cadvisor:
+    container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:latest
+    privileged: true
+    ports:
+      - "8080:8080"
+    command:
+      - --enable_metrics=cpu,memory,network
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - social-ai-portrait
+
+  redis_exporter:
+    container_name: redis_exporter
+    image: oliver006/redis_exporter:alpine
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    command:
+      - --redis.addr=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - social-ai-portrait
+
+  grafana:
+    container_name: grafana
+    build:
+      context: ./grafana
+    privileged: true
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+    volumes:
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - social-ai-portrait
+
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager:latest
+    privileged: true
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager:/config
+      - alertmanager-data:/data
+    command:
+      - --config.file=/config/alertmanager.yml
+      - --web.config.file=/config/web.yml
+    depends_on:
+      - prometheus
+    networks:
+      - social-ai-portrait
 
 networks:
   social-ai-portrait:
+
+volumes:
+  prometheus-data:
+  alertmanager-data:

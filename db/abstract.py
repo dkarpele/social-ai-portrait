@@ -88,3 +88,12 @@ class AbstractCache(ABC):
         :return:
         """
         ...
+
+    @abstractmethod
+    async def ping(self):
+        """
+        Ping cache instance
+        :return:
+        """
+        ...
+

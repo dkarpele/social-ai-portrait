@@ -5,8 +5,9 @@ import uvicorn
 from asgi_correlation_id import CorrelationIdMiddleware
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
-from auth_api.src.api.v1 import oauth
+from auth_api.src.api.v1 import oauth, monitoring
 from auth_api.src.core.config import auth_settings
 from db import db_redis
 from project_settings.config import redis_settings
@@ -44,6 +45,12 @@ app = FastAPI(
     # dependencies=[Depends(rate_limit)]
 )
 app.add_middleware(CorrelationIdMiddleware)
+instrumentator = Instrumentator(). \
+    instrument(app). \
+    expose(app,
+           endpoint='/metrics-fastapi-auth-api',
+           include_in_schema=False
+           )
 
 #
 # @app.middleware('http')
@@ -57,6 +64,8 @@ app.add_middleware(CorrelationIdMiddleware)
 
 
 app.include_router(oauth.router, prefix='/api/v1/oauth', tags=['oauth'])
+app.include_router(monitoring.router, prefix='/api/v1/monitoring',
+                   tags=['monitoring'])
 
 if __name__ == '__main__':
     uvicorn.run(

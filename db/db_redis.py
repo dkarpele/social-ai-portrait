@@ -61,6 +61,9 @@ class Redis(AbstractCache):
         data = self.session.scan_iter(pattern)
         return data
 
+    async def ping(self):
+        await self.session.ping()
+
 
 redis: Redis | None = None
 

@@ -35,12 +35,17 @@ async def revoke_user_creds_handler(update, context) -> None:
     )
 
 
-async def bot_exc_func(update, context):
-    await context.bot.send_message(chat_id=update.effective_chat.id,
+async def bot_exc_func(exc_level, exc_type, update, context):
+    chat_id = update.effective_chat.id
+    level = getattr(logger, exc_level)
+    level(f'Exception {exc_type} occurred with {chat_id=}.',
+          exc_info=False if exc_level in ('debug', 'info') else True)
+
+    await context.bot.send_message(chat_id=chat_id,
                                    text='Your credentials are not '
                                         'valid.')
     await generate_youtube_login_message(
         context,
         update.effective_chat.id,
-        await auth_connector.get_authorization_url(update.effective_chat.id)
+        await auth_connector.get_authorization_url(chat_id)
     )
