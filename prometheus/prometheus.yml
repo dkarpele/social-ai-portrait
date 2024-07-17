@@ -21,17 +21,23 @@ rule_files:
 
 scrape_configs:
   - job_name: cadvisor
-    scrape_interval: 5s
+    scrape_interval: 15s
     static_configs:
-    - targets:
-      - cadvisor:8080
+      - targets:
+        - cadvisor:8080
 
-  - job_name: fastapi-auth-api
-    scrape_interval: 5s
+  - job_name: fastapi-authapi
+    scrape_interval: 15s
     metrics_path: /metrics-fastapi-auth-api
     static_configs:
-    - targets:
-      - nginx:80
+      - targets:
+        - nginx:80
+
+  - job_name: authapi-redis-healthcheck
+    scrape_interval: 30s
+    metrics_path: /api/v1/monitoring/authapi-redis-healthcheck
+    static_configs:
+      - targets: ['nginx:80']
 
   - job_name: 'redis_exporter'
     static_configs:

@@ -12,10 +12,6 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-REQUEST_TIME = Summary('request_processing_seconds',
-                       'Time spent processing request')
-
-
 @router.get('/callback/aiogoogle',
             status_code=status.HTTP_200_OK,
             description="Redirect URI",
@@ -24,7 +20,6 @@ REQUEST_TIME = Summary('request_processing_seconds',
             )
 @log_chat_id(logger)
 @handle_exception(exc_func)
-# @REQUEST_TIME.time()
 async def callback(state: str,
                    code: int | str | None = None,
                    error: str | None = None,

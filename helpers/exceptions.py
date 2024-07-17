@@ -66,3 +66,9 @@ too_many_requests = HTTPException(
             detail="Too many requests",
             headers={"WWW-Authenticate": "Bearer"},
 )
+
+connection_error = HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Service unavailable",
+            headers={"WWW-Authenticate": "Bearer"},
+)

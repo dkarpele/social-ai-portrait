@@ -2,13 +2,14 @@ groups:
   - name: Redis
     rules:
       - alert: RedisDown
-        expr: redis_up{} == 0
+        expr: redis_up{} == 0 or up{instance="redis://redis:6379"}
         for: 10s
         labels:
           severity: critical
         annotations:
           summary: Redis down (instance {{ $labels.instance }})
           description: "Redis instance is down\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
       - alert: RedisNotEnoughConnections
         expr: redis_connected_clients < 4
         for: 2m
@@ -17,3 +18,11 @@ groups:
         annotations:
           summary: Redis not enough connections (instance {{ $labels.instance }})
           description: "Redis instance should have more connections (> 4)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+      - alert: RedisNotConnectedToAuthAPI
+        expr: authapi_redis_healthcheck > 5
+        for: 5m  # Alert if unhealthy for 5 minutes straight
+        labels:
+          severity: critical
+        annotations:
+          summary: FastAPI application unable to reach Redis for an extended period.
