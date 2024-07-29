@@ -51,3 +51,8 @@ async def callback(state: str,
         return await redirect.redirect_response(['Unknown error happened.',
                                                  general_error_message],
                                                 chat_id)
+        # TODO: http://lol.lol/api/v1/oauth/callback/aiogoogle?state=dddd
+        # telegram.error.BadRequest: Chat not found
+        # HTTP_401_UNAUTHORIZED
+        # if state and not error or state and not code:
+        # return HTTP_401_UNAUTHORIZED

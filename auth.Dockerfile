@@ -1,6 +1,20 @@
-FROM python:3.12
+FROM python:3.12-slim AS build-env
 
 WORKDIR /app
+ENV WORKDIR "/app"
+
+COPY ./auth_api/src/requirements.txt requirements.txt
+
+RUN pip install --upgrade pip \
+    && pip install -r ${WORKDIR}/requirements.txt \
+    && mkdir -p ${WORKDIR}/logs
+
+# FROM gcr.io/distroless/python3
+# I can't use distroless now because an image is old:
+# It has a bug in pydantic:
+# ModuleNotFoundError: No module named 'pydantic_core._pydantic_core'
+# It can be used with python3.11 but my code works only with 3.12.
+# WORKDIR /app
 
 ENV WORKDIR "/app"
 ENV ENV_FILENAME ".env"
@@ -12,11 +26,10 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH "${PYTHONPATH}:${WORKDIR}"
 
-COPY ./auth_api/src/requirements.txt requirements.txt
-
-RUN pip install --upgrade pip \
-    && pip install -r ${WORKDIR}/requirements.txt \
-    && mkdir -p ${WORKDIR}/logs
+#ENV PYTHONPATH "${PYTHONPATH}:${WORKDIR}:/usr/local/lib/python3.11/site-packages"
+#COPY --from=build-env /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+#COPY --from=build-env /usr/local/bin/gunicorn /usr/local/bin/gunicorn
+#COPY --from=build-env ${WORKDIR}/logs ${WORKDIR}/logs
 
 COPY ./auth_api/src ./auth_api/src
 COPY ./auth_app ./auth_app
@@ -24,7 +37,8 @@ COPY ./db ./db
 COPY ./project_settings ./project_settings
 COPY ./helpers ./helpers
 COPY ./keys ./keys
-
-RUN pwd ; ls -al
+COPY ./.env ./.env
 
 CMD ["/bin/sh", "-c", "gunicorn -k uvicorn.workers.UvicornWorker --logger-class=auth_api.src.core.config.GunicornLogger --log-level DEBUG --bind 0.0.0.0:8000 auth_api.src.main:app"]
+
+#CMD ["/usr/local/bin/gunicorn", "-k=uvicorn.workers.UvicornWorker", "--logger-class=auth_api.src.core.config.GunicornLogger", "--bind=0.0.0.0:8000", "auth_api.src.main:app"]

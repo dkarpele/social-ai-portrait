@@ -28,7 +28,7 @@ scrape_configs:
 
   - job_name: fastapi-authapi
     scrape_interval: 15s
-    metrics_path: /metrics-fastapi-auth-api
+    metrics_path: /metrics-auth-api
     static_configs:
       - targets:
         - nginx:80
