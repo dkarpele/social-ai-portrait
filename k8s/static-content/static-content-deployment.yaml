@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: static-content-deployment
+  labels:
+    app: static-content
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: static-content
+  template:
+    metadata:
+      labels:
+        app: static-content
+    spec:
+      containers:
+      - name: static-content
+        image: static-content-nginx
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: static-content-nginx-conf-configmap
+            mountPath: "/etc/nginx"
+          - name: static-content-conf-d-configmap
+            mountPath: "/etc/nginx/conf.d"
+      volumes:
+        - name: static-content-nginx-conf-configmap
+          configMap:
+            name: static-content-nginx-conf-configmap
+        - name: static-content-conf-d-configmap
+          configMap:
+            name: static-content-conf-d-configmap

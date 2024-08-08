@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  fastapi-auth-api:
-    container_name: fastapi-auth-api
+  auth-api-service:
+    container_name: auth-api-service
     restart: unless-stopped
     build:
       context: ./
@@ -10,14 +10,14 @@ services:
     env_file:
       - .env
     networks:
-      - social-ai-portrait
+      - social-ai-profile
     depends_on:
-      redis:
+      redis-service:
         condition: service_healthy
 
 
-  bot:
-    container_name: bot
+  bot-service:
+    container_name: bot-service
     restart: unless-stopped
     build:
       context: ./
@@ -25,18 +25,18 @@ services:
     env_file:
       - .env
     networks:
-      - social-ai-portrait
+      - social-ai-profile
     depends_on:
-      redis:
+      redis-service:
         condition: service_healthy
 
-  redis:
-    container_name: redis
+  redis-service:
+    container_name: redis-service
     image: redis:latest
-    # restart: always
+    restart: always
     privileged: true
     networks:
-      - social-ai-portrait
+      - social-ai-profile
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 5s
@@ -44,8 +44,6 @@ services:
       retries: 5
     expose:
       - "6379"
-    ports:
-      - 6379:6379
 
   nginx:
     container_name: nginx
@@ -58,17 +56,17 @@ services:
       - ./www/:/var/www/
       - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
-      fastapi-auth-api:
+      auth-api-service:
         condition: service_started
-      bot:
+      bot-service:
         condition: service_started
-      redis:
+      redis-service:
         condition: service_healthy
     ports:
       - "80:80"
       - "443:443"
     networks:
-      - social-ai-portrait
+      - social-ai-profile
 
   prometheus:
     container_name: prometheus
@@ -86,7 +84,7 @@ services:
     depends_on:
       - cadvisor
     networks:
-      - social-ai-portrait
+      - social-ai-profile
 
   cadvisor:
     container_name: cadvisor
@@ -102,10 +100,10 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     depends_on:
-      redis:
+      redis-service:
         condition: service_healthy
     networks:
-      - social-ai-portrait
+      - social-ai-profile
 
   redis_exporter:
     container_name: redis_exporter
@@ -117,9 +115,9 @@ services:
     command:
       - --redis.addr=redis://redis:6379
     depends_on:
-      - redis
+      - redis-service
     networks:
-      - social-ai-portrait
+      - social-ai-profile
 
   grafana:
     container_name: grafana
@@ -135,7 +133,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - social-ai-portrait
+      - social-ai-profile
 
   alertmanager:
     container_name: alertmanager
@@ -153,10 +151,10 @@ services:
     depends_on:
       - prometheus
     networks:
-      - social-ai-portrait
+      - social-ai-profile
 
 networks:
-  social-ai-portrait:
+  social-ai-profile:
 
 volumes:
   prometheus-data:

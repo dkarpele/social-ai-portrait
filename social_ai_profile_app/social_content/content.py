@@ -50,8 +50,7 @@ class YouTubeContent(AbstractContent):
                     tags = item['snippet']['tags']
                     yield from tags[:5]
                 except KeyError:
-                    logger.info(f'Video "{item['snippet']['title']}" has no'
-                                f' tags.')
+                    logger.info(f'Video "{item["snippet"]["title"]}" has no tags.')
 
         tags_liked_videos: list = list(create_tags_list(liked_videos))
         tags_disliked_videos: list = list(create_tags_list(disliked_videos))

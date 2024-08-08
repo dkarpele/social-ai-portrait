@@ -1,0 +1,141 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: static-content-nginx-conf-configmap
+data:
+  nginx.conf: |
+    user  nginx;
+    worker_processes  auto;
+
+    error_log  /var/log/nginx/error.log warn;
+    pid        /var/run/nginx.pid;
+
+    events {
+        worker_connections  4096;
+    }
+
+    http {
+        default_type  application/octet-stream;
+
+        log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                          '$status $body_bytes_sent "$http_referer" '
+                          '"$http_user_agent" "$http_x_forwarded_for" $request_id';
+
+        access_log  /var/log/nginx/access.log  main;
+        keepalive_timeout  65;
+
+        sendfile        on;
+        tcp_nodelay     on;
+        tcp_nopush      on;
+
+        client_max_body_size 800M;
+        gzip on;
+        gzip_min_length 1000;
+        gzip_types
+            text/plain
+            text/css
+            application/json
+            application/x-javascript
+            text/xml
+            text/javascript;
+
+        include conf.d/test.conf;
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: static-content-conf-d-configmap
+data:
+  prod.conf: |
+    server {
+        listen 80;
+        listen [::]:80;
+
+        server_name socialaiprofile.top www.socialaiprofile.top;
+        server_tokens off;
+
+        location / {
+            return 301 https://socialaiprofile.top$request_uri;
+        }
+    }
+
+    server {
+        listen 443 default_server ssl;
+        listen [::]:443 ssl;
+        http2 on;
+
+        server_name socialaiprofile.top;
+
+        ssl_certificate /etc/nginx/ssl/live/socialaiprofile.top/fullchain.pem;
+        ssl_certificate_key /etc/nginx/ssl/live/socialaiprofile.top/privkey.pem;
+
+        location / {
+            alias /var/www/app/;
+            index home.html;
+        }
+
+        location /privacy {
+            alias /var/www/app/policies/;
+            index privacy.html;
+        }
+
+        location /policies/privacy {
+            alias /var/www/app/policies/;
+            index privacy.html;
+        }
+
+        location /policies/limited_use_reqs {
+            alias /var/www/app/policies/;
+            index limited_use_reqs.html;
+        }
+
+        proxy_redirect     off;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Request-Id     $request_id;
+
+        real_ip_header    X-Forwarded-For;
+        # error_page  404              /404.html;
+
+        # redirect server error pages to the static page /50x.html
+        # error_page   500 502 503 504  /50x.html;
+    }
+  test.conf: |
+    server {
+        listen       80 default_server;
+        listen       [::]:80 default_server;
+        server_name  _;
+        server_tokens off;
+        proxy_intercept_errors on;
+
+        location / {
+            alias /var/www/app/;
+            index home.html;
+        }
+
+        location /privacy {
+            alias /var/www/app/policies/;
+            index privacy.html;
+        }
+
+        location /policies/privacy {
+            alias /var/www/app/policies/;
+            index privacy.html;
+        }
+
+        location /policies/limited_use_reqs {
+            alias /var/www/app/policies/;
+            index limited_use_reqs.html;
+        }
+
+        proxy_redirect     off;
+        proxy_set_header   Host             $host;
+        proxy_set_header   X-Real-IP        $remote_addr;
+        proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Request-Id     $request_id;
+
+        real_ip_header    X-Forwarded-For;
+    }

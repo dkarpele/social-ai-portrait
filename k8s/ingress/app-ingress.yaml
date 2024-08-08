@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: default
+spec:
+  ingressClassName: "nginx"
+  rules:
+  - host: socialaiprofile.top
+    http:
+      paths:
+      - path: "/api/v1"
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-api-service
+            port:
+              number: 8000
+      - path: "/metrics-auth-api"
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-api-service
+            port:
+              number: 8000
+      - path: "/"
+        pathType: Prefix
+        backend:
+          service:
+            name: static-content-service
+            port:
+              number: 80

@@ -48,7 +48,7 @@ app.add_middleware(CorrelationIdMiddleware)
 instrumentator = Instrumentator(). \
     instrument(app). \
     expose(app,
-           endpoint='/metrics-fastapi-auth-api',
+           endpoint='/metrics-auth-api',
            include_in_schema=False
            )
 
