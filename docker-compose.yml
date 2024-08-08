@@ -12,7 +12,7 @@ services:
     networks:
       - social-ai-profile
     depends_on:
-      redis:
+      redis-service:
         condition: service_healthy
 
 
@@ -27,7 +27,7 @@ services:
     networks:
       - social-ai-profile
     depends_on:
-      redis:
+      redis-service:
         condition: service_healthy
 
   redis-service:
@@ -56,11 +56,11 @@ services:
       - ./www/:/var/www/
       - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
-      fastapi-auth-api:
+      auth-api-service:
         condition: service_started
-      bot:
+      bot-service:
         condition: service_started
-      redis:
+      redis-service:
         condition: service_healthy
     ports:
       - "80:80"
@@ -100,7 +100,7 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
     depends_on:
-      redis:
+      redis-service:
         condition: service_healthy
     networks:
       - social-ai-profile
@@ -115,7 +115,7 @@ services:
     command:
       - --redis.addr=redis://redis:6379
     depends_on:
-      - redis
+      - redis-service
     networks:
       - social-ai-profile
 
