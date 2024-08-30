@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Annotated
 
-from db.db_redis import Redis, get_cache
+from db.db_cache import Redis, get_cache
 from db.abstract import AbstractCache
 from fastapi import Depends
 

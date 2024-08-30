@@ -164,3 +164,9 @@ cython_debug/
 /alertmanager/alertmanager.yml
 /alertmanager/web.yml
 /prometheus/pass
+/k8s/python-apps/env-configmap.yaml
+/k8s/python-apps/env-secrets.yaml
+/k8s/python-apps/keys-secrets.yaml
+/k8s/python-apps/configmaps-and-secrets/env-configmap.yaml
+/k8s/python-apps/configmaps-and-secrets/env-secrets.yaml
+/k8s/python-apps/configmaps-and-secrets/keys-secrets.yaml

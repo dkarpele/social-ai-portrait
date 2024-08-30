@@ -9,7 +9,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 
 from auth_api.src.api.v1 import oauth, monitoring
 from auth_api.src.core.config import auth_settings
-from db import db_redis
+from db import db_cache
 from project_settings.config import redis_settings
 from project_settings.logger import LOGGING
 
@@ -18,7 +18,7 @@ logger = logging.getLogger('auth_api')
 
 async def startup():
     logger.info('Fastapi startup')
-    db_redis.redis = db_redis.Redis(host=redis_settings.redis_host,
+    db_cache.redis = db_cache.Redis(host=redis_settings.redis_host,
                                     port=redis_settings.redis_port,
                                     ssl=False)
 

@@ -1,0 +1,6 @@
+# https://sdk.operatorframework.io/docs/building-operators/ansible/reference/watches/
+- version: v1
+  group: ansibleoperator.com
+  kind: AnsibleOperator
+  role: /opt/ansible/roles/postgresql
+  ansibleNamespace: default

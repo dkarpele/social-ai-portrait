@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansible-operator
+  namespace: social-ai-profile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ansible-operator
+  template:
+    metadata:
+      labels:
+        name: ansible-operator
+    spec:
+      serviceAccountName: ansible-operator-service-account
+      containers:
+      - name: ansible-operator
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 500m
+            memory: 400Mi
+        # Image containing ansible role to reconcile
+        image: ansible-operator:latest
+        imagePullPolicy: IfNotPresent
+        # Required to see logs from the ansible tasks
+        # in the controller output
+        env:
+          - name: ANSIBLE_DEBUG_LOGS
+            value: "True"
+        envFrom:
+        - configMapRef:
+            name: env-configmap
+        - secretRef:
+            name: env-secrets
+
+#        volumeMounts:
+#          - name: keys-secrets
+#            mountPath: "/app/keys"
+#      volumes:
+#        - name: keys-secrets
+#          secret:
+#            secretName: keys-secrets
+
