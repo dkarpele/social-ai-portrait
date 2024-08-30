@@ -1,0 +1,111 @@
+---
+- name: Create a  Postgres cluster by reading the definition from a local file
+  kubernetes.core.k8s:
+    state: present
+    src: /opt/ansible/pg-cluster-manifest.yaml
+  register: pg_cluster_info
+
+
+- name: Load dump to the postgresql db
+  block:
+    - name: Wait until pg-cluster Pod is available
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Pod
+        namespace: "{{ namespace }}"
+        name: "{{ cluster_name }}-0"
+        wait: yes
+        wait_condition:
+          status: True
+          type: Ready
+
+    - name: Wait until pg-cluster-pooler Deployment is available
+      kubernetes.core.k8s_info:
+        api_version: apps/v1
+        kind: Deployment
+        namespace: "{{ namespace }}"
+        name: "{{ cluster_name }}-pooler"
+        wait: yes
+        wait_condition:
+          reason: MinimumReplicasAvailable
+          status: True
+          type: Available
+
+    - name: Postgresql info
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: postgresql
+        namespace: "{{ namespace }}"
+        name: "{{ cluster_name }}"
+      register: postgresql_info
+
+
+    - name: Load configmaps and secrets
+      kubernetes.core.k8s:
+        state: present
+        template:
+          - path: /opt/ansible/configmaps-and-secrets/env-configmap.yaml
+          - path: /opt/ansible/configmaps-and-secrets/env-secrets.yaml
+      register: env_secrets_info
+
+    - name: Secret info
+      kubernetes.core.k8s_info:
+        api_version: v1
+        kind: Secret
+        namespace: "{{ namespace }}"
+        name: "{{ env_secrets_info.result.results[1].result.data.DB_USER | b64decode }}.{{ cluster_name }}.credentials.postgresql.acid.zalan.do"
+      register: secret_info
+
+    - name: Get env vars
+      set_fact:
+        host: "{{ env_secrets_info.result.results[0].result.data.DB_HOST }}"
+        port: "{{ env_secrets_info.result.results[0].result.data.DB_PORT }}"
+        user: "{{ secret_info.resources[0].data.username | b64decode }}"
+        password: "{{ secret_info.resources[0].data.password | b64decode }}"
+        database: "{{ env_secrets_info.result.results[1].result.data.DB_NAME | b64decode }}"
+        schema: "{{ env_secrets_info.result.results[0].result.data.PG_SCHEMA }}"
+
+    - name: Create db schema if not exists
+      kubernetes.core.k8s_exec:
+        pod: "{{ cluster_name }}-0"
+        namespace: "{{ namespace }}"
+        command: "psql postgresql://{{ user }}:{{ password }}@{{ host }}:{{ port }}/{{ database }}?sslmode=require -c 'create schema if not exists {{ schema }}'"
+
+    - name: Copy dump file to /home/postgres in a postgresql pod
+      kubernetes.core.k8s_cp:
+        namespace: "{{ namespace }}"
+        pod: "{{ cluster_name }}-0"
+        remote_path: /home/postgres
+        local_path: /opt/ansible/sap_database_20240818.sql
+
+    - name: Load dump to the postgresql db
+      kubernetes.core.k8s_exec:
+        pod: "{{ cluster_name }}-0"
+        namespace: "{{ namespace }}"
+        command: "pg_restore -d postgresql://{{ user }}:{{ password }}@{{ host }}:{{ port }}/{{ database }}?sslmode=require --data-only --table={{ database }}.users sap_database_20240818.sql"
+  when: pg_cluster_info.method == "create"
+
+#- name: Upgrade database
+#  ansible.builtin.command: alembic -c /opt/ansible/alembic.ini upgrade head
+#  environment:
+#    ENV_FILENAME: ~/social-ai-portrait/.env
+
+
+#- name: Increase replicas
+#  kubernetes.core.k8s:
+#    api_version: myoperator.com/v1
+#    kind: MyOperator
+#    name: my-new-operator
+#    namespace: "default"
+#    definition:
+#      spec:
+#        replicas: "{{ (myoperator_info.resources[0].spec.replicas | int) + 1 }}"
+#    merge_type: merge
+
+#
+#
+#kubectl get configmap --namespace default env-configmap -o jsonpath="{.data.DB_HOST}"
+#kubectl get configmap --namespace default env-configmap -o jsonpath="{.data.DB_PORT}"
+#kubectl get secret --namespace default env-secrets -o jsonpath="{.data.DB_NAME}" | base64 -d
+#kubectl get secret --namespace default env-secrets -o jsonpath="{.data.DB_USER}" | base64 -d
+#kubectl get secret --namespace default env-secrets -o jsonpath="{.data.DB_PASSWORD}" | base64 -d

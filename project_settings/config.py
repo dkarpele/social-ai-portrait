@@ -63,3 +63,15 @@ class SMTPLoggingSettings(MainConf):
 
 
 smtp_settings = SMTPLoggingSettings()
+
+
+class DBCreds(MainConf):
+    dbname: str = Field(..., alias="DB_NAME")
+    user: str = Field(..., alias="DB_USER")
+    password: str = Field(..., alias="DB_PASSWORD")
+    host: str = Field(alias="DB_HOST", default='127.0.0.1')
+    port: int = Field(alias="DB_PORT", default=5432)
+    options: str = '-c search_path=%s' % os.environ.get('PG_SCHEMA')
+
+
+database_dsn = DBCreds()

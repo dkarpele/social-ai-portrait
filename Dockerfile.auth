@@ -17,7 +17,6 @@ RUN pip install --upgrade pip \
 # WORKDIR /app
 
 ENV WORKDIR "/app"
-ENV ENV_FILENAME ".env"
 ENV LOG_ENV "prod"
 ENV LOG_LEVEL "debug"
 ENV PRIVATE_KEY_FILEPATH "${WORKDIR}/keys/private_key.pem"
@@ -36,8 +35,6 @@ COPY ./auth_app ./auth_app
 COPY ./db ./db
 COPY ./project_settings ./project_settings
 COPY ./helpers ./helpers
-COPY ./keys ./keys
-COPY ./.env ./.env
 
 CMD ["/bin/sh", "-c", "gunicorn -k uvicorn.workers.UvicornWorker --logger-class=auth_api.src.core.config.GunicornLogger --log-level DEBUG --bind 0.0.0.0:8000 auth_api.src.main:app"]
 

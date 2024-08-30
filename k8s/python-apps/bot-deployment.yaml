@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: bot-deployment
+  namespace: social-ai-profile
   labels:
     app: bot
 spec:
@@ -14,6 +15,7 @@ spec:
       labels:
         app: bot
     spec:
+      serviceAccountName: build-sa
       containers:
       - name: bot
         image: bot
@@ -24,11 +26,26 @@ spec:
         ports:
         - containerPort: 8000
         imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: env-configmap
+        - secretRef:
+            name: env-secrets
+        volumeMounts:
+          - name: keys-secrets
+            mountPath: "/app/keys"
+            readOnly: true
+      volumes:
+        - name: keys-secrets
+          secret:
+            secretName: keys-secrets
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: bot-service
+  namespace: social-ai-profile
 spec:
   selector:
     app: bot

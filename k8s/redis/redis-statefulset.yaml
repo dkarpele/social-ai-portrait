@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: redis-statefulset
+  namespace: social-ai-profile
   labels:
     app: redis
 spec:

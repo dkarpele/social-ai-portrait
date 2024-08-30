@@ -1,0 +1,19 @@
+FROM quay.io/operator-framework/ansible-operator:v1.35.0
+
+WORKDIR /opt/ansible
+ENV WORKDIR "/opt/ansible"
+
+# Copy the operator itself
+COPY k8s/ansible-operator /opt/ansible
+COPY k8s/python-apps/configmaps-and-secrets /opt/ansible/configmaps-and-secrets
+#COPY k8s/ansible-operator/roles /opt/ansible/roles
+#COPY k8s/ansible-operator/watches.yaml /opt/ansible/watches.yaml
+#COPY k8s/ansible-operator/crds/ /opt/ansible/deploy/crds/
+#COPY deploy/operator.yaml /opt/ansible/deploy/operator.yaml
+#COPY k8s/my-operator/rbac /opt/ansible/rbac/
+
+#Install the community.kubernetes collection
+RUN ansible-galaxy collection install kubernetes.core
+
+# Ensure that the scripts directory is included in the PATH
+ENV PATH="${WORKDIR}:${WORKDIR}/.local/bin:${PATH}"

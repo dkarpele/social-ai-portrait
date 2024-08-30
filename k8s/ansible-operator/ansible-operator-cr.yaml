@@ -1,0 +1,5 @@
+apiVersion: ansibleoperator.com/v1
+kind: AnsibleOperator
+metadata:
+  name: new-ansible-operator
+  namespace: social-ai-profile

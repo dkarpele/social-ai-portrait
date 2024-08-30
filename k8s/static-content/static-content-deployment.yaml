@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: static-content-deployment
+  namespace: social-ai-profile
   labels:
     app: static-content
 spec:

@@ -17,7 +17,6 @@ RUN pip install --upgrade pip \
 #WORKDIR /app
 
 ENV WORKDIR "/app"
-ENV ENV_FILENAME ".env"
 ENV LOG_ENV "prod"
 ENV LOG_LEVEL "debug"
 ENV PRIVATE_KEY_FILEPATH "${WORKDIR}/keys/private_key.pem"
@@ -35,8 +34,7 @@ COPY ./auth_app ./auth_app
 COPY ./db ./db
 COPY ./project_settings ./project_settings
 COPY ./helpers ./helpers
-COPY ./keys ./keys
 COPY ./social_ai_profile_app ./social_ai_profile_app
-COPY ./.env ./.env
+COPY ./alembic.ini ./alembic.ini
 
-CMD ["/bin/sh", "-c", "python3 bot_app/src/main.py"]
+CMD ["/bin/sh", "-c", "alembic upgrade head && python3 bot_app/src/main.py"]

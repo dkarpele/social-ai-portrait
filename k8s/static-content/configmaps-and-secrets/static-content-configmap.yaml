@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: static-content-nginx-conf-configmap
+  namespace: social-ai-profile
 data:
   nginx.conf: |
     user  nginx;
