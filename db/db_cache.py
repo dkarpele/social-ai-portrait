@@ -9,6 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class Redis(AbstractCache):
+    """
+    Concrete implementation of the AbstractCache class for Redis. See
+    docstrings for exact method in abstract class.
+    """
     def __init__(self, **params):
         self.session = AsyncRedis(**params)
 
@@ -23,7 +27,7 @@ class Redis(AbstractCache):
 
         return data
 
-    async def put_to_cache_by_id(self, _id, entity, expire=None):
+    async def put_to_cache_by_id(self, _id, entity, expire: int | None =None):
         logger.info(f'Putting entity by id: `{_id}` to cache')
         await self.session.set(_id,
                                entity,

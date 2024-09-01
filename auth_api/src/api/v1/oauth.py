@@ -1,7 +1,11 @@
+"""
+This module handles OAuth callback logic for the Auth API, specifically
+for the Google AioGoogle provider.
+"""
+
 import logging
 
 from fastapi import APIRouter, status
-from prometheus_client import Summary
 
 from auth_api.src.services.exceptions import exc_func, general_error_message
 from auth_app.auth import auth_connector
@@ -24,7 +28,20 @@ async def callback(state: str,
                    code: int | str | None = None,
                    error: str | None = None,
                    ):
-    # code = '4/0ATx3LY4RZUt2I3oUNiqEojqrG485LGbTk-Q0QghfK0thsubNkWV8-awgIQjw4J_QCvGx5Q'
+    """
+    Handles OAuth callback for the Google AioGoogle provider.
+
+    This function receives data from the Google authorization flow
+    and attempts to authenticate the user.
+
+    :param state: State parameter passed during the authorization flow.
+    :param code: Authorization code received from Google (if successful).
+    :param error: Error message received from Google (if any).
+    :returns: A redirect response containing either a success message or an
+        error message depending on the authentication outcome.
+    :raises auth_api.src.services.exceptions.CustomException: If an unexpected
+        error occurs during authentication.
+    """
     logger.info('User redirected from authorization URL and will try to auth.')
     chat_id = state.split('.')[0]
 
