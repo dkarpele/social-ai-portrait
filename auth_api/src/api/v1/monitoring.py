@@ -1,3 +1,15 @@
+"""
+This module provides functionalities for monitoring the health of the Redis
+ cache used by the Auth API.
+
+It defines a Prometheus Gauge metric named 'authapi_redis_healthcheck' to
+track the number of errors encountered when interacting with Redis.
+
+It also implements a health check endpoint `/authapi-redis-healthcheck` that
+attempts to ping the Redis cache and returns a success message or raises a
+custom exception (`helpers.exceptions.connection_error`) upon failure.
+"""
+
 import logging
 
 from fastapi import APIRouter, status
@@ -19,7 +31,19 @@ redis_errors = Gauge('authapi_redis_healthcheck',
             status_code=status.HTTP_200_OK,
             include_in_schema=True,
             )
-async def redis_healthcheck(cache: CacheDep, ):
+async def redis_healthcheck(cache: CacheDep):
+    """
+    Performs a health check on the Redis cache used by the Auth API.
+
+    This function attempts to ping the Redis cache instance using the provided
+    cache dependency object.
+
+    :param cache: A dependency object providing access to the Redis cache.
+    :return: A dictionary containing a success message upon successful
+    connection.
+    :raises helpers.exceptions.connection_error: If a connection error occurs while
+        interacting with Redis.
+    """
     try:
         logger.info('Trying to ping cache instance.')
         await cache.ping()

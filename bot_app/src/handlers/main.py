@@ -1,3 +1,7 @@
+"""
+This script defines the handlers for the Telegram bot application.
+"""
+
 import logging
 
 from telegram import Update

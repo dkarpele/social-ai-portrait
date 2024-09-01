@@ -11,6 +11,10 @@ Base = declarative_base(metadata=MetaData(schema='content'))
 
 
 class Postgres(AbstractStorage):
+    """
+    Concrete implementation of the AbstractStorage class for Postgresql. See
+    docstrings for exact method in abstract class.
+    """
     def __init__(self, url: str):
         echo = (os.getenv('ENGINE_ECHO', 'False') == 'True')
         self.engine = create_async_engine(url,

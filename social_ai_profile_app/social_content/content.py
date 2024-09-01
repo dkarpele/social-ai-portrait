@@ -10,8 +10,27 @@ logger = logging.getLogger(__name__)
 
 
 class YouTubeContent(AbstractContent):
+    """
+    Implementation of `AbstractContent` for fetching video tags from YouTube.
+
+    This class utilizes the Aiogoogle library to access YouTube's API and
+    retrieve tags associated with the user's liked and disliked videos.
+    It follows the interface defined in `AbstractContent` for fetching video tags.
+    """
     @staticmethod
     async def get_videos_tags(user_creds) -> tuple[list, list]:
+        """
+        Retrieves tags from the user's liked and disliked videos on YouTube.
+
+        This method asynchronously fetches tags from the user's most recent 5
+        liked and disliked videos on YouTube using the provided user credentials.
+        It utilizes Aiogoogle to interact with YouTube's API and returns a tuple
+        containing two lists: one for tags from liked videos and one for tags
+        from disliked videos.
+
+        :param user_creds: User credentials required for accessing YouTube's API.
+        :return: A tuple containing two lists of tags (liked, disliked).
+        """
         logger.debug('Getting tags for the resent 5 liked and disliked videos')
         async with Aiogoogle(user_creds=user_creds,
                              client_creds=client_creds) as aiogoogle:
@@ -39,11 +58,8 @@ class YouTubeContent(AbstractContent):
             Generates a list of tags from a dictionary of videos, taking only
             the first 5 tags from each video.
 
-            Args:
-                videos (dict): A dictionary containing information about videos.
-
-            Returns:
-                list: A list of tags.
+            :param videos (dict): A dictionary containing information about videos.
+            :return list: A list of tags.
             """
             for item in videos['items']:
                 try:
