@@ -1,0 +1,20 @@
+@startuml
+skinparam componentStyle uml2
+
+actor BotUser
+component AuthApi
+component AuthApp
+component BotApp
+component GoogleAPI
+database Cache
+
+
+
+BotUser -right-> BotApp: /auth
+BotApp -right-> AuthApp: auth_user
+AuthApp -down-> Cache: get_from_cache_by_id(f'creds.{chat_id}')
+Cache -left-> BotApp: UserAlreadyLoggedIn
+AuthApp -right-> GoogleAPI: Oauth2Manager().authorization_url
+
+
+@enduml
