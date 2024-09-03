@@ -117,6 +117,6 @@ async def bot_exc_func(exc_level: str, exc_type: str, update: Update,
                                         'valid.')
     await generate_youtube_login_message(
         context,
-        update.effective_chat.id,
+        str(update.effective_chat.id),
         await auth_connector.get_authorization_url(chat_id)
     )
